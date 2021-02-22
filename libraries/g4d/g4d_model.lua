@@ -1,5 +1,6 @@
 local Vectors  = require(G4D_PATH .. "/g4d_vectors")
 local Matrices = require(G4D_PATH .. "/g4d_matrices")
+local Collisions  = require(G4D_PATH .. "/g4d_collisions")
 local load_obj = require(G4D_PATH .. "/g4d_objloader")
 
 local Model = {}
@@ -14,6 +15,9 @@ Model.shader = require(G4D_PATH .. "/g4d_shaderloader")
 
 Model.models = {}
 
+for key,value in pairs(Collisions) do
+	Model[key] = value
+end
 
 function Model:new(vertices, texture, pos, rot, sca, color)
 	local model = setmetatable({}, {__index = Model})
@@ -33,10 +37,10 @@ function Model:new(vertices, texture, pos, rot, sca, color)
 	model.sz       = sca and sca[3] or 1
 	model.matrix   = {}
 	model.texture  = texture
-	model.vertices = vertices
 	model.color    = {color[1] or 1, color[2] or 1, color[3] or 1, color[4] or 1}
 
-	model:generate_normals()
+	model.aabb     = model:generate_aabb(vertices)
+	model.vertices = model:generate_normals_in_vertices(vertices)
 
 	model.mesh     = love.graphics.newMesh(Model.vertex_format, model.vertices, "triangles")
 	model.mesh:setTexture(texture)
@@ -53,13 +57,13 @@ function Model:draw()
 	love.graphics.draw(self.mesh)
 end
 
-function Model:generate_normals(is_flipped)
+function Model:generate_normals_in_vertices(vertices, is_flipped)
 	local flip = is_flipped and -1 or 1
 
-	for i=1, #self.vertices, 3 do
-		local v1 = self.vertices[i]
-		local v2 = self.vertices[i+1]
-		local v3 = self.vertices[i+2]
+	for i=1, #vertices, 3 do
+		local v1 = vertices[i]
+		local v2 = vertices[i+1]
+		local v3 = vertices[i+2]
 
 		local vec1   = {v2[1]-v1[1], v2[2]-v1[2], v2[3]-v1[3]}
 		local vec2   = {v3[1]-v2[1], v3[2]-v2[2], v3[3]-v2[3]}
@@ -77,6 +81,8 @@ function Model:generate_normals(is_flipped)
 		v3[7] = normal[2] * flip
 		v3[8] = normal[3] * flip
 	end
+
+	return vertices
 end
 
 function Model:transform(x, y, z, rx, ry, rz, sx, sy, sz)
@@ -111,7 +117,7 @@ end
 
 function Model:rotate(rx, ry, rz)
 	if type(rx) == 'table' then
-		self:transform(rx[1], rx[2], rx[3])
+		self:transform(_, _, _, rx[1], rx[2], rx[3])
 	else
 		self:transform(_, _, _, rx, ry, rz)
 	end
@@ -120,10 +126,21 @@ end
 
 function Model:scale(sx, sy, sz)
 	if type(sx) == 'table' then
-		self:transform(sx[1], sx[2], sx[3])
+		self:transform(_, _, _, _, _, _, sx[1], sx[2], sx[3])
 	else
 		self:transform(_, _, _, _, _, _, sx, sy or sx, sz or sx) 
 	end
+	return self
+end
+
+function Model:set_color(...) 
+	local color = {...}
+
+	self.color[1] = color[1] or 1
+	self.color[2] = color[2] or 1
+	self.color[3] = color[3] or 1
+	self.color[4] = color[4] or 1
+
 	return self
 end
 

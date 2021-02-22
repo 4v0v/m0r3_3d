@@ -5,25 +5,25 @@ function Play_scene:new()
 
 	self:every(fn() return pressed('escape') end, fn() change_scene_with_transition('menu') end)
 
-	@.moon    = g4d.add_model('assets/obj/sphere.obj', 'assets/images/moon.png'):move(5, -5, 0):scale(2)
-	@.cube1   = g4d.add_model('assets/obj/cube.obj', _ , {-2, 0, 24}, _,  _, {0, 1, 1})
-	@.cube2   = g4d.add_model('assets/obj/cube.obj', _ , {-6, 0, 24}, _,  _, {1, 0, 1})
-	@.cube3   = g4d.add_model('assets/obj/cube.obj', _ , {-10, 0, 24}, _, _, {1, 1, 0})
-	@.cube4   = g4d.add_model('assets/obj/cube.obj', _ , {-2, 0, 16}, _,  _, {1, 0, 0})
-	@.cube5   = g4d.add_model('assets/obj/cube.obj', _ , {-6, 0, 16}, _,  _, {0, 1, 0})
-	@.cube6   = g4d.add_model('assets/obj/cube.obj', _ , {-10, 0, 16}, _, _, {0, 0, 1})
 
-	@.light1 = g4d.add_model('assets/obj/sphere.obj', _ , {5, 10, 16}, _, { .3, .3, .3}, {0, 1, 0}, true, .1, 1)
-	@.light2 = g4d.add_model('assets/obj/sphere.obj', _ , {-5, 5, 5}, _, { .3, .3, .3}, {1, 1, 0}, true, .1, .8)
+	@.map = g4d.add_model("assets/obj/map.obj", "assets/images/tileset.png"):scale(1, -1, -1)
+
+	@.moon    = g4d.add_model('assets/obj/sphere.obj', 'assets/images/moon.png'):move(5, -10, 0):scale(2)
+	@.cube1   = g4d.add_model('assets/obj/cube.obj'):move(-2, 0, 24):set_color(0, 1, 1)
+	@.cube2   = g4d.add_model('assets/obj/cube.obj'):move(-6, 0, 24):set_color(1, 0, 1)
+	@.cube3   = g4d.add_model('assets/obj/cube.obj'):move(-10, 0, 24):set_color(1, 1, 0)
+	@.cube4   = g4d.add_model('assets/obj/cube.obj'):move(-2, 0, 16):set_color(1, 0, 0)
+	@.cube5   = g4d.add_model('assets/obj/cube.obj'):move(-6, 0, 16):set_color(0, 1, 0)
+	@.cube6   = g4d.add_model('assets/obj/cube.obj'):move(-5, 5, 5):set_color(0, 0, 1)
+
+	@.light2 = g4d.add_model('assets/obj/sphere.obj'):move(-5, 5, 5):set_color(.3, .3, .3)
 
 	@.f = Sinewave(0, 10, 3)
-	@.g = Sinewave(0, 10, 3)
 end
 
 function Play_scene:update(dt)
 	Play_scene.super.update(@, dt)
 
-	@.f:update(dt)
 	@.g:update(dt)
 
 	if down('q')      then g4d.camera:update(dt, 'left')   end
@@ -33,10 +33,15 @@ function Play_scene:update(dt)
 	if down('z')      then g4d.camera:update(dt, 'toward') end
 	if down('s')      then g4d.camera:update(dt, 'back')   end
 
-	
-	@.light1:move(-5 + @.f:get_cos(), _, 20 +@.f:get_sin())
+
+	-- if @.light2:collide_with_aabb(@.cube6) then
+	-- 	print('collision')
+	-- end
+
+	-- print(@.moon:get_distance_from(g4d.camera:position()))
+
 	@.light2:move(_, 5 +@.g:get_cos(), _)
-	
+
 	@.moon:rotate(@.moon.rx + dt)
 	@.cube1:rotate(@.cube1.rx + dt)
 	@.cube2:rotate(_, @.cube2.ry + dt)

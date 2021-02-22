@@ -52,8 +52,8 @@ function Camera:update(dt, dir)
 	elseif dir == 'left_abs'  then self.x = self.x - speed
 	elseif dir == 'forth_abs' then self.z = self.z + speed
 	elseif dir == 'back_abs'  then self.z = self.z - speed
-	elseif dir == 'up'        then self.y = self.y + speed
-	elseif dir == 'down'      then self.y = self.y - speed
+	elseif dir == 'down'      then self.y = self.y + speed
+	elseif dir == 'up'        then self.y = self.y - speed
 		-- move camera relative to target
 	elseif dir == 'left'      then dx    = -1
 	elseif dir == 'right'     then dx    =  1
