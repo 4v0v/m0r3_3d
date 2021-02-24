@@ -380,7 +380,6 @@ local function find_closest(self, verts, func, ...)
         end
     end
 
-    -- fast_normalize the normal vector before it is returned
     if finalLength then
         norm_x, norm_y, norm_z = Vectors:fast_normalize(norm_x, norm_y, norm_z)
     end

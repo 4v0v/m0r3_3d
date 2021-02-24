@@ -38,6 +38,15 @@ function Matrices:get_translation_matrix(x, y, z)
 	}
 end
 
+function Matrices:get_quaternion_matrix(x, y, z, w)
+	return {
+		1 - 2*y^2 - 2*z^2, 2*x*y - 2*z*w,     2*x*z + 2*y*w,     0,
+		2*x*y + 2*z*w,     1 - 2*x^2 - 2*z^2, 2*y*z - 2*x*w,     0,
+		2*x*z - 2*y*w,     2*y*z + 2*x*w,     1 - 2*x^2 - 2*y^2, 0,
+		0,                 0,                 0,                 1,
+	}
+end
+
 function Matrices:get_x_rotation_matrix(rx)
 	return {
 		1, 0,       0,        0,

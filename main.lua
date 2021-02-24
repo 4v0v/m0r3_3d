@@ -7,10 +7,12 @@ function love.run()
 	
 	Physics = require('libraries/physics')
 	g4d = require('libraries/g4d')
+	IQM = require('libraries/iqm')
 
 	require('class')
 	require('utils')
 	require('monkey')
+
 
 	require_all('classes')
 	require_all('scenes')
@@ -72,7 +74,7 @@ function load_game()
 	add_scene('menu', Menu_scene())
 	add_scene('play', Play_scene())
 
-	change_scene('menu')
+	change_scene('play')
 end
 
 function add_scene(id, scene)

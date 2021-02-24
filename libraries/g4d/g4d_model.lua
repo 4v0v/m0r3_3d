@@ -40,7 +40,7 @@ function Model:new(vertices, texture, pos, rot, sca, color)
 	model.color    = {color[1] or 1, color[2] or 1, color[3] or 1, color[4] or 1}
 
 	model.aabb     = model:generate_aabb(vertices)
-	model.vertices = model:generate_normals_in_vertices(vertices)
+	model.vertices = model:generate_normals_inside_vertices(vertices)
 
 	model.mesh     = love.graphics.newMesh(Model.vertex_format, model.vertices, "triangles")
 	model.mesh:setTexture(texture)
@@ -57,7 +57,7 @@ function Model:draw()
 	love.graphics.draw(self.mesh)
 end
 
-function Model:generate_normals_in_vertices(vertices, is_flipped)
+function Model:generate_normals_inside_vertices(vertices, is_flipped)
 	local flip = is_flipped and -1 or 1
 
 	for i=1, #vertices, 3 do

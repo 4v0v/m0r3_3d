@@ -1,4 +1,5 @@
 local Matrices = require(G4D_PATH .. '/g4d_matrices')
+local Vectors = require(G4D_PATH .. '/g4d_vectors')
 local cos, sin, max, min, abs, atan2, sqrt = math.cos, math.sin, math.max, math.min, math.abs, math.atan2, math.sqrt
 
 local function sign(x) 
@@ -109,7 +110,10 @@ end
 
 function Camera:look_at(tx, ty, tz)
 	local tx, ty, tz = unpack_params(tx, ty, tz)
-	self.tx, self.ty, self.tz = tx or self.tx, ty or self.ty, tz or self.tz
+
+
+
+	self.tx, self.ty, self.tz = Vectors:fast_normalize(tx or self.tx, ty or self.ty, tz or self.tz)
 	if self.tx == 0 then self.tx = .001 end
 
 	local dx = self.tx - self.x
