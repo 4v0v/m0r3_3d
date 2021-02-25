@@ -7,50 +7,12 @@ function Anim_scene:new()
 	@:every(fn() return pressed('escape') end, fn() change_scene_with_transition('menu') end)
 
 
-
-	@.model =
-	{
-		file  = "assets/iqm/mrfixit.iqm",
-		materials =
-		{
-			-- [material] = image
-			["Body.tga"] = "assets/images/Body.jpg",
-			["Head.tga"] = "assets/images/Head.jpg",
-		},
-		anim_pose = "idle",
-		
-		-- On load
-		--textures = newImage!(materials)
-		--iqm = iqm.load(model.file),
-		--anim = anim9(iqm.load_anims(model.file)),
-		--anim_track = model.anim:new_track(model.anim_pose),
-		--center = cmpl.vec3(),
-		
-		-- Position (offset) of the model
-		position = cpml.vec3(0, 0, 0),
-		-- Angles of the model
-		angles = cpml.vec3(0, 0, 0),
-		matrix = cpml.mat4():identity(),
-	}
-	
-	@.model.updateMatrix = function(self)
-		local mat, angles, center = self.matrix, self.angles, self.center
-		mat:identity()
-		mat:translate(mat, -center)
-		mat:rotate(mat, angles.x, cpml.vec3.unit_x)
-		mat:rotate(mat, angles.y, cpml.vec3.unit_y)
-		mat:rotate(mat, angles.z, cpml.vec3.unit_z)
-		mat:translate(mat, center + self.position)
-	end
-	
 	@.camera_3d = {
-		fov = 90,
-		-- Distance relative to model's center
-		position = cpml.vec3(6, 0, 0),
-		matrix = cpml.mat4():identity(),
+		fov      = 50,
+		position = cpml.vec3(30, 0, 0),
+		matrix   = cpml.mat4():identity(),
 	}
 
-	
 	@.proj = {}
 	@.proj.updateMatrix = function(proj)
 		local w, h = love.graphics.getDimensions()
@@ -60,30 +22,54 @@ function Anim_scene:new()
 		proj.matrix =  isPerspective and proj.perspective or proj.ortho
 	end
 	
-	@.lightv = cpml.vec3(1, 1, 1)
-	@.lightv = @.lightv:normalize()
+
+	@.model = {}
+	@.model.pose      = 'walk'
+	@.model.file      = "assets/iqm/cthulhu.iqm"
+	@.model.materials = {
+			-- ["Body.tga"] = "assets/images/Body.jpg",
+			-- ["Head.tga"] = "assets/images/Head.jpg",
+	}
+	@.model.position   = cpml.vec3(0, 0, 0)
+	@.model.angles     = cpml.vec3(0, 0, 0)
+	@.model.matrix     = cpml.mat4():identity()
+	@.model.iqm        = iqm.load(@.model.file)
+	@.model.anims      = iqm.load_anims(@.model.file)
+	@.model.anim		 = anim9(@.model.anims)
+	@.model.idle_track = @.model.anim:new_track('idle', 1)
+	@.model.walk_track = @.model.anim:new_track('walk', 1)
+
+	print(@.model.idle_track)
 
 
-	@.model.iqm = iqm.load(@.model.file)
-	@.model.textures = {}
+
+	@.model.textures   = {}
 	for mat, image in pairs(@.model.materials) do
 		@.model.textures[mat] = love.graphics.newImage(image, { mipmaps = true })
 	end
 
-	-- Calculate the center of the model based on bounds
-	-- This helps rotating it about its center (by dragging mouse)
+	function @.model:updateMatrix()
+		local mat, angles, center = self.matrix, self.angles, self.center
+		mat:identity()
+		mat:translate(mat, -center)
+		mat:rotate(mat, angles.x, cpml.vec3.unit_x)
+		mat:rotate(mat, angles.y, cpml.vec3.unit_y)
+		mat:rotate(mat, angles.z+1.5, cpml.vec3.unit_z)
+		mat:translate(mat, center + self.position)
+	end
+
 	local bounds = @.model.iqm.bounds.base
-	local min = cpml.vec3(bounds.min)
-	local max = cpml.vec3(bounds.max)
+	local min    = cpml.vec3(bounds.min)
+	local max    = cpml.vec3(bounds.max)
 	@.model.center = (min + max) / 2
 
 	@.model:updateMatrix()
 
-	@.model.anim = anim9(iqm.load_anims(@.model.file))
-	@.model.anim.animations[@.model.anim_pose].loop = true
-	
-	@.model.anim_track = @.model.anim:new_track(@.model.anim_pose)
-	@.model.anim:play(@.model.anim_track)
+	-- @.model.anim.animations['idle'].loop = true
+	-- @.model.anim.animations['walk'].loop = true
+
+
+	@.model.anim:play(@.model.walk_track)
 	@.model.anim:update(0) -- init animation
 
 	@.camera_3d.position = @.camera_3d.position + (@.model.position + @.model.center)
@@ -92,9 +78,6 @@ function Anim_scene:new()
 	@.proj:updateMatrix()
 
 	@.shader = love.graphics.newShader("assets/shaders/anim_shader.glsl")
-	-- connect with the gui
-	-- gui.createGUI(model, @.proj)
-
 end
 
 function Anim_scene:update(dt)
@@ -103,23 +86,38 @@ function Anim_scene:update(dt)
 	@.model.anim:update(dt)
 end
 
+function Anim_scene:keypressed(k)
+
+	if k == 'a' then 
+		@.model.anim:transition(@.model.idle_track)
+		@.model.anim:update(0) -- init animation
+
+	elseif k == 'b' then
+		@.model.anim:transition(@.model.walk_track)
+		@.model.anim:update(0) -- init animation
+	end
+end
 function Anim_scene:draw_outside_camera_fg()
+	lg.setColor(0.2, 0.5, 0.3)
+	lg.rectangle('fill', 0, 0, lg.getWidth(), lg.getHeight())
+	lg.setColor(1, 1, 1)
 	love.graphics.setShader(@.shader)
-	@.shader:send("u_pose", "column", unpack(@.model.anim.current_pose))
-	@.shader:send("u_model", "column", @.model.matrix:to_vec4s())
-	@.shader:send("u_camera", "column", @.camera_3d.matrix:to_vec4s())
-	@.shader:send("u_light", {@.lightv:unpack()})
-	@.shader:send("u_proj", "column", @.proj.matrix:to_vec4s())
 	love.graphics.setDepthMode("less", true)
 	love.graphics.setMeshCullMode("back")
+
+	@.shader:send("u_proj"  , "column", @.proj.matrix:to_vec4s())
+	@.shader:send("u_camera", "column", @.camera_3d.matrix:to_vec4s())
+	@.shader:send("u_model" , "column", @.model.matrix:to_vec4s())
+	@.shader:send("u_pose"  , "column", unpack(@.model.anim.current_pose))
+
 	for _, buffer in ipairs(@.model.iqm.meshes) do
 		local texture = @.model.textures[buffer.material]
 		@.model.iqm.mesh:setTexture(texture)
 		@.model.iqm.mesh:setDrawRange(buffer.first, buffer.last - buffer.first)
 		love.graphics.draw(@.model.iqm.mesh)
 	end
+
 	love.graphics.setDepthMode()
 	love.graphics.setShader()
-	-- gui.draw()
 end
 

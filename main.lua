@@ -15,7 +15,6 @@ function love.run()
 	require('utils')
 	require('monkey')
 
-
 	require_all('classes')
 	require_all('scenes')
 	require_all('entities', {recursive = true})
