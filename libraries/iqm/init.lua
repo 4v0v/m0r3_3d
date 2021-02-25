@@ -318,7 +318,7 @@ end
 
 function Iqm.load_anims(file)
 	-- Require CPML here because loading the mesh does not depend on it.
-	local cpml = require "cpml"
+	local cpml = require('libraries/cpml')
 
 	-- See the comment in Iqm.load. Do *NOT* remove. -ss
 	collectgarbage("stop")

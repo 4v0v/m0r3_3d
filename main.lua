@@ -6,8 +6,10 @@ function love.run()
 	lk.setKeyRepeat(true)
 	
 	Physics = require('libraries/physics')
-	g4d = require('libraries/g4d')
-	IQM = require('libraries/iqm')
+	g4d  = require('libraries/g4d')
+	iqm  = require('libraries/iqm')
+	cpml = require('libraries/cpml')
+	anim9 = require('libraries/anim9')
 
 	require('class')
 	require('utils')
@@ -73,8 +75,9 @@ end
 function load_game()
 	add_scene('menu', Menu_scene())
 	add_scene('play', Play_scene())
+	add_scene('anim', Anim_scene())
 
-	change_scene('play')
+	change_scene('anim')
 end
 
 function add_scene(id, scene)

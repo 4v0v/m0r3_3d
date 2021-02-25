@@ -50,8 +50,6 @@ end
 
 function Play_scene:draw_outside_camera_fg()
 	g4d:draw()
-
-
 end
 
 function Play_scene:enter()
