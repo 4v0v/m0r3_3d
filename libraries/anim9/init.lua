@@ -96,7 +96,7 @@ end
 local function new(data, anims, markers)
 	if not data.skeleton then return end
 
-	local t = {
+	local o = setmetatable({
 		time         = 0,
 		animations   = {},
 		timeline     = {},
@@ -104,12 +104,13 @@ local function new(data, anims, markers)
 		inverse_base = {},
 		index_map    = {},
 		bind_pose    = {}
-	}
+	}, Anim9)
 
-	local o = setmetatable(t, Anim9)
+
 	if anims ~= nil and not anims then
 		return o
 	end
+
 	o:rebind(data)
 	for _, v in ipairs(anims or data) do
 		if markers then
@@ -219,9 +220,10 @@ end
 function Anim9:play(track)
 	assert(type(track) == "table")
 	assert(self.timeline[track] == nil)
+
 	track.playing = true
-	track.offset = self.time
-	track.time = self.time
+	track.offset  = self.time
+	track.time    = self.time
 
 	table.insert(self.timeline, track)
 	self.timeline[track] = track

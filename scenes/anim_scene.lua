@@ -8,8 +8,8 @@ function Anim_scene:new()
 
 
 	@.camera_3d = {
-		fov      = 50,
-		position = cpml.vec3(30, 0, 0),
+		fov      = 90,
+		position = cpml.vec3(5, 0, 0),
 		matrix   = cpml.mat4():identity(),
 	}
 
@@ -25,28 +25,33 @@ function Anim_scene:new()
 
 	@.model = {}
 	@.model.pose      = 'walk'
-	@.model.file      = "assets/iqm/cthulhu.iqm"
+	@.model.file      = "assets/iqm/mrfixit.iqm"
 	@.model.materials = {
-			-- ["Body.tga"] = "assets/images/Body.jpg",
-			-- ["Head.tga"] = "assets/images/Head.jpg",
+			["Body.tga"] = "assets/images/Body.jpg",
+			["Head.tga"] = "assets/images/Head.jpg",
 	}
 	@.model.position   = cpml.vec3(0, 0, 0)
 	@.model.angles     = cpml.vec3(0, 0, 0)
 	@.model.matrix     = cpml.mat4():identity()
+
 	@.model.iqm        = iqm.load(@.model.file)
 	@.model.anims      = iqm.load_anims(@.model.file)
 	@.model.anim		 = anim9(@.model.anims)
-	@.model.idle_track = @.model.anim:new_track('idle', 1)
-	@.model.walk_track = @.model.anim:new_track('walk', 1)
 
-	print(@.model.idle_track)
-
-
-
+	@.model.tracks     = {} 
+	for i, v in ipairs(@.model.anims) do
+		@.model.tracks[v.name] = @.model.anim:new_track(v.name)
+	end
+	
 	@.model.textures   = {}
 	for mat, image in pairs(@.model.materials) do
 		@.model.textures[mat] = love.graphics.newImage(image, { mipmaps = true })
 	end
+
+	@.model.anim.animations['idle'].loop = true
+	@.model.anim:play(@.model.tracks.idle)
+	@.model.anim:update(0) -- init animation
+
 
 	function @.model:updateMatrix()
 		local mat, angles, center = self.matrix, self.angles, self.center
@@ -54,27 +59,16 @@ function Anim_scene:new()
 		mat:translate(mat, -center)
 		mat:rotate(mat, angles.x, cpml.vec3.unit_x)
 		mat:rotate(mat, angles.y, cpml.vec3.unit_y)
-		mat:rotate(mat, angles.z+1.5, cpml.vec3.unit_z)
+		mat:rotate(mat, angles.z, cpml.vec3.unit_z)
 		mat:translate(mat, center + self.position)
 	end
-
 	local bounds = @.model.iqm.bounds.base
 	local min    = cpml.vec3(bounds.min)
 	local max    = cpml.vec3(bounds.max)
 	@.model.center = (min + max) / 2
-
 	@.model:updateMatrix()
-
-	-- @.model.anim.animations['idle'].loop = true
-	-- @.model.anim.animations['walk'].loop = true
-
-
-	@.model.anim:play(@.model.walk_track)
-	@.model.anim:update(0) -- init animation
-
 	@.camera_3d.position = @.camera_3d.position + (@.model.position + @.model.center)
 	@.camera_3d.matrix:look_at(@.camera_3d.matrix, @.camera_3d.position, @.model.position + @.model.center, cpml.vec3.unit_z)
-
 	@.proj:updateMatrix()
 
 	@.shader = love.graphics.newShader("assets/shaders/anim_shader.glsl")
@@ -87,14 +81,9 @@ function Anim_scene:update(dt)
 end
 
 function Anim_scene:keypressed(k)
-
 	if k == 'a' then 
-		@.model.anim:transition(@.model.idle_track)
-		@.model.anim:update(0) -- init animation
-
-	elseif k == 'b' then
-		@.model.anim:transition(@.model.walk_track)
-		@.model.anim:update(0) -- init animation
+		@.model.anim:transition(@.model.tracks.idle)
+		-- @.model.anim:update(0) -- init animation
 	end
 end
 function Anim_scene:draw_outside_camera_fg()

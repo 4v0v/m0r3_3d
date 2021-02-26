@@ -38,5 +38,10 @@ function G4d:draw(x, y)
 	love.graphics.setShader()
 end
 
+function G4d:update(dt)
+	for _, model in ipairs(self.models) do 
+		model:update(dt)
+	end
+end
 
 return G4d

@@ -13,6 +13,17 @@ function Play_scene:new()
 	@.cube6  = g4d.add_model('assets/obj/cube.obj'):move(-5, 5, 5):set_color(0, 0, 1)
 	@.light2 = g4d.add_model('assets/obj/sphere.obj'):move(-5, 5, 5):set_color(.3, .3, .3)
 
+
+	@.dude = g4d.add_model('assets/iqm/mrfixit.iqm', {
+		["Body.tga"] = "assets/images/Body.jpg",
+		["Head.tga"] = "assets/images/Head.jpg",
+	}):move(-10, 0, 0):rotate(math.pi/2, 0, 0)
+
+
+	@.dude.anim.animations['idle'].loop = true
+	@.dude.anim:play(@.dude.tracks.idle)
+	@.dude.anim:update(0) -- init animation
+
 	@.sinewave  = Sinewave(0, 10, 3)
 	@.cube_dist = Lerp(10)
 
@@ -22,6 +33,7 @@ end
 
 function Play_scene:update(dt)
 	Play_scene.super.update(@, dt)
+	g4d:update(dt)
 
 	@.sinewave:update(dt)
 	@.cube_dist:update(dt)
@@ -34,11 +46,11 @@ function Play_scene:update(dt)
 	if down('s')      then g4d.camera:update(dt, 'back')   end
 
 	-- print(@.moon:get_distance_from(g4d.camera:position()))
-	@.cube1:move(
-		g4d.camera.x + (g4d.camera.tx - g4d.camera.x) * @.cube_dist:get(), 
-		g4d.camera.y + (g4d.camera.ty - g4d.camera.y) * @.cube_dist:get(), 
-		g4d.camera.z + (g4d.camera.tz - g4d.camera.z) * @.cube_dist:get()
-	)
+	-- @.cube1:move(
+	-- 	g4d.camera.x + (g4d.camera.tx - g4d.camera.x) * @.cube_dist:get(), 
+	-- 	g4d.camera.y + (g4d.camera.ty - g4d.camera.y) * @.cube_dist:get(), 
+	-- 	g4d.camera.z + (g4d.camera.tz - g4d.camera.z) * @.cube_dist:get()
+	-- )
 	@.light2:move(_, 5 + @.sinewave:get_cos())
 	@.moon:rotate(@.moon.rx + dt)
 	@.cube2:rotate(_, @.cube2.ry + dt)
@@ -47,6 +59,7 @@ function Play_scene:update(dt)
 	@.cube5:rotate(_, @.cube5.ry + dt)
 	@.cube6:rotate(_, _, @.cube6.rz + dt)
 end
+
 
 function Play_scene:draw_outside_camera_fg()
 	g4d:draw()

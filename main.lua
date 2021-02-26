@@ -76,7 +76,7 @@ function load_game()
 	add_scene('play', Play_scene())
 	add_scene('anim', Anim_scene())
 
-	change_scene('anim')
+	change_scene('play')
 end
 
 function add_scene(id, scene)

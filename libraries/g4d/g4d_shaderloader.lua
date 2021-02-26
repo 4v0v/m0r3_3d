@@ -1,1 +1,1 @@
-return love.graphics.newShader(G4D_PATH .. '/g4d_shader.glsl')
+return love.graphics.newShader('assets/shaders/g4d_shader.glsl')

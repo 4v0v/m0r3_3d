@@ -1,6 +1,7 @@
 local base = (...):gsub('%.?init$', '') .. "."
 local c    = require(base .. "iqm-ffi")
 local ffi  = require "ffi"
+local cpml = require('libraries/cpml')
 
 local Iqm = {
 	_LICENSE     = "Inter-Quake Model Loader is distributed as public domain (Unlicense). See LICENSE.md for full text.",
@@ -17,7 +18,6 @@ end
 
 local function load_data(file)
 	local is_buffer = check_magic(file)
-
 
 	-- Make sure it's a valid IQM file
 	if not is_buffer then
@@ -85,11 +85,6 @@ end
 
 -- 'file' can be either a filename or IQM data (as long as the magic is intact)
 function Iqm.load(file, save_data, preserve_cw)
-	-- HACK: Workaround for a bug in LuaJIT's GC - we need to turn it off for the
-	-- rest of the function or we'll get a segfault shortly into these loops.
-	--
-	-- I've got no idea why the GC thinks it can pull the rug out from under us,
-	-- but I sure as hell don't appreciate it. Do NOT restart until the end. -ss
 	collectgarbage("stop")
 
 	local header, data = load_data(file)
@@ -118,20 +113,20 @@ function Iqm.load(file, save_data, preserve_cw)
 	local function translate_format(type)
 		local types = {
 			[c.IQM_FLOAT] = "float",
-			[c.IQM_UBYTE] = lovr and "ubyte" or "byte",
+			[c.IQM_UBYTE] = "byte",
 		}
 		return types[type] or false
 	end
 
 	local function translate_love(type)
 		local types = {
-			position = lovr and "lovrPosition" or "VertexPosition",
-			texcoord = lovr and "lovrTexCoord" or "VertexTexCoord",
-			normal   = lovr and "lovrNormal" or "VertexNormal",
-			tangent  = lovr and "lovrTangent" or "VertexTangent",
-			bone     = lovr and "lovrBones" or "VertexBone",
-			weight   = lovr and "lovrBoneWeights" or "VertexWeight",
-			color    = lovr and "lovrVertexColor" or "VertexColor",
+			position = "VertexPosition",
+			texcoord = "VertexTexCoord",
+			normal   = "VertexNormal",
+			tangent  = "VertexTangent",
+			bone     = "VertexBone",
+			weight   = "VertexWeight",
+			color    = "VertexColor",
 		}
 		return assert(types[type])
 	end
@@ -317,11 +312,9 @@ function Iqm.load(file, save_data, preserve_cw)
 end
 
 function Iqm.load_anims(file)
-	-- Require CPML here because loading the mesh does not depend on it.
-	local cpml = require('libraries/cpml')
-
 	-- See the comment in Iqm.load. Do *NOT* remove. -ss
 	collectgarbage("stop")
+
 	local header, data = load_data(file)
 
 	-- Decode mesh/material names.
@@ -407,6 +400,7 @@ function Iqm.load_anims(file)
 	end
 
 	collectgarbage("restart")
+
 	return anims
 end
 
