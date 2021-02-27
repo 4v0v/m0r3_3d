@@ -14,14 +14,16 @@ function Play_scene:new()
 	@.light2 = g4d.add_model('assets/obj/sphere.obj'):move(-5, 5, 5):set_color(.3, .3, .3)
 
 
-	@.dude = g4d.add_model('assets/iqm/mrfixit.iqm', {
-		["Body.tga"] = "assets/images/Body.jpg",
-		["Head.tga"] = "assets/images/Head.jpg",
+	@.dude = g4d.add_model('assets/iqm/human.iqm', {
+		-- ["Body.tga"] = "assets/images/Body.jpg",
+		-- ["Head.tga"] = "assets/images/Head.jpg",
+		["TextureClothedLightSkin2"] = "assets/images/TextureClothedLightSkin2.png",
 	}):move(-10, 0, 0):rotate(math.pi/2, 0, 0)
 
+	print(@.dude.iqm.meshes[1])
 
-	@.dude.anim.animations['idle'].loop = true
-	@.dude.anim:play(@.dude.tracks.idle)
+	@.dude.anim.animations['Idle'].loop = true
+	@.dude.anim:play(@.dude.tracks.Idle)
 	@.dude.anim:update(0) -- init animation
 
 	@.sinewave  = Sinewave(0, 10, 3)

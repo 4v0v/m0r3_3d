@@ -34,12 +34,13 @@ function Model:new(file, texture, pos, rot, sca, color)
 			model.mesh        = love.graphics.newMesh(Model.vertex_format, model.vertices, "triangles")
 			model.is_animated = false
 
-		elseif extension == ".iqm" then
+		elseif extension == ".iqm" or extension == ".exm" then
 			model.iqm         = iqm.load(file)
 			model.vertices    = model.iqm.triangles
 			model.mesh        = model.iqm.mesh
 			model.anims       = iqm.load_anims(file)
 			model.anim        = anim9(model.anims)
+
 			model.is_animated = true
 			
 			model.tracks      = {}
