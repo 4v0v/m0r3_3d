@@ -11,7 +11,7 @@ struct Model {
 	mat4 matrix;
 	vec4 color;
 	bool is_animated;
-	mat4 pose[100];
+	mat4 pose[128];
 };
 uniform Model model;
 
